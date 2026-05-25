@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}List Crop{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:1rem;color:var(--green-dark);">List a New Crop for Auction</h2>
+<div class="form-card" style="max-width:640px;margin:0;">
+  <form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="name">Crop Name *</label>
+      <input type="text" id="name" name="name" required placeholder="e.g. Organic Wheat">
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" placeholder="Quality, harvest date, etc."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category">Category *</label>
+        <input type="text" id="category" name="category" required placeholder="Grains, Vegetables...">
+      </div>
+      <div class="form-group">
+        <label for="quality_grade">Quality Grade</label>
+        <input type="text" id="quality_grade" name="quality_grade" placeholder="A, Premium...">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="quantity">Quantity *</label>
+        <input type="number" id="quantity" name="quantity" step="0.01" min="0.01" required>
+      </div>
+      <div class="form-group">
+        <label for="unit">Unit</label>
+        <select id="unit" name="unit">
+          <option value="kg">kg</option>
+          <option value="quintal">quintal</option>
+          <option value="ton">ton</option>
+          <option value="bag">bag</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="location">Pickup Location</label>
+      <input type="text" id="location" name="location" placeholder="Village, district">
+    </div>
+    <div class="form-group">
+      <label for="image">Crop Photo</label>
+      <input type="file" id="image" name="image" accept="image/*">
+    </div>
+    <hr style="margin:1.25rem 0;border:none;border-top:1px solid #eee;">
+    <h3 style="margin-bottom:0.75rem;font-size:1rem;color:var(--green-mid);">Auction Settings (Hybrid)</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="start_price">Starting Bid (₹) *</label>
+        <input type="number" id="start_price" name="start_price" step="0.01" min="0" required>
+      </div>
+      <div class="form-group">
+        <label for="buy_now_price">Buy Now Price (₹, optional)</label>
+        <input type="number" id="buy_now_price" name="buy_now_price" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="min_increment">Min Bid Increment (₹)</label>
+        <input type="number" id="min_increment" name="min_increment" step="0.01" min="1" value="10">
+      </div>
+      <div class="form-group">
+        <label for="duration_hours">Duration (hours)</label>
+        <input type="number" id="duration_hours" name="duration_hours" min="1" max="168" value="24">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Start Auction</button>
+  </form>
+</div>
+{% endblock %}

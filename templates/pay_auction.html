@@ -1,0 +1,79 @@
+{% extends "layouts/public.html" %}
+{% block title %}Initiate Payment - AgriAuction{% endblock %}
+{% block body %}
+<div class="page-wrap" style="padding-top: 2rem; max-width: 600px; margin: 0 auto;">
+  
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <span class="badge badge-eligible" style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 9999px;">
+      🛒 Checkout Escrow Settlement
+    </span>
+    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">Settle Winning Bid</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Review the transaction details and complete the escrow payment.</p>
+  </div>
+
+  <div class="form-card" style="box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #ffffff;">
+    <div style="background: #f8fafc; padding: 1.5rem; border-bottom: 1px solid var(--border);">
+      <h3 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 0.5rem 0;">Lot Details</h3>
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <span style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">{{ crop.name }}</span>
+        <span class="badge badge-live" style="background: #eef2f6; color: #475569;">Lot #{{ crop.lot_number or '—' }}</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0 0;">Farmer: {{ farmer.full_name }}</p>
+    </div>
+
+    <div style="padding: 1.5rem;">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+          <span style="color: var(--text-muted);">Quantity:</span>
+          <span style="font-weight: 600; color: var(--text-main);">{{ crop.quantity }} {{ crop.unit }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+          <span style="color: var(--text-muted);">Winning Bid (Per {{ crop.unit }}):</span>
+          <span style="font-weight: 600; color: var(--text-main);">₹{{ '{:,.2f}'.format(unit_price) }}</span>
+        </div>
+        <hr style="border: none; border-top: 1px dashed var(--border); margin: 0.5rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Total Order Value:</span>
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">₹{{ '{:,.2f}'.format(total_price) }}</span>
+        </div>
+      </div>
+
+      <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+          <span style="font-weight: 600; color: #0369a1;">💰 Available Trading Wallet:</span>
+          <span style="font-weight: 700; color: #0369a1;">₹{{ '{:,.2f}'.format(trading_balance) }}</span>
+        </div>
+        {% if needed > 0 %}
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; border-top: 1px solid #bae6fd; padding-top: 0.5rem; margin-top: 0.25rem;">
+          <span style="font-weight: 600; color: #b45309;">⚠️ Insufficient Balance (Need):</span>
+          <span style="font-weight: 700; color: #b45309;">+ ₹{{ '{:,.2f}'.format(needed) }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <form method="post">
+        {% if needed > 0 %}
+        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #b45309; line-height: 1.4;">
+          <strong>Auto-Top Up Enabled:</strong> Your Trading Wallet is currently short of the total amount. Clicking below will automatically add the missing <strong>₹{{ '{:,.2f}'.format(needed) }}</strong> to your Trading Wallet and instantly settle the payment.
+        </div>
+        <input type="hidden" name="topup_amount" value="{{ needed }}">
+        <button type="submit" class="btn btn-primary" style="width: 100%; display: block; text-align: center; background: #d97706; border-color: #d97706; padding: 0.75rem; font-size: 1rem; font-weight: 700;">
+          Add ₹{{ '{:,.2f}'.format(needed) }} & Complete Payment
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-primary" style="width: 100%; display: block; text-align: center; background: #0284c7; border-color: #0284c7; padding: 0.75rem; font-size: 1rem; font-weight: 700;">
+          Pay ₹{{ '{:,.2f}'.format(total_price) }} from Trading Wallet
+        </button>
+        {% endif %}
+      </form>
+
+      <div style="text-align: center; margin-top: 1.25rem;">
+        <a href="{{ url_for('dashboard') }}" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; font-weight: 500;">
+          ‹ Return to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

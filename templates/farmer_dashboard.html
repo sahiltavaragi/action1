@@ -1,0 +1,93 @@
+{% extends "layouts/public.html" %}
+{% block title %}Farmer Dashboard{% endblock %}
+{% block body %}
+<div class="page-wrap" style="padding-top:1.5rem;">
+  <h1 style="font-size:1.35rem;">{{ user.full_name if user else session.full_name }}</h1>
+  <p style="color:var(--text-muted);margin-bottom:1rem;">Crops listed by admin · Earnings transferred directly to Bank{% if user and user.login_id %} · Login ID: {{ user.login_id }}{% endif %}</p>
+  
+  <div class="stat-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1rem;margin-bottom:1.5rem;">
+    <div class="stat-card">
+      <div class="label">Total Earned</div>
+      <div class="value dark">₹{{ '{:,.2f}'.format(total_earned) }}</div>
+      <div class="sub">Transferred to Bank</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Pending Payout</div>
+      <div class="value orange">₹{{ '{:,.2f}'.format(pending_payout) }}</div>
+      <div class="sub">Held in escrow</div>
+    </div>
+  </div>
+
+  <h2 class="section-label">My Crop Lots</h2>
+  {% if crops %}
+  <div class="list-card">
+    {% for crop in crops %}
+    {% set auction = crop.auctions[0] if crop.auctions else none %}
+    <div class="list-row">
+      <span class="list-row-lot">{{ crop.lot_number or '—' }}</span>
+      <div class="list-row-body">
+        <div class="list-row-title">{{ crop.name }}</div>
+        <div class="list-row-meta">{{ crop.status }} · {{ crop.quantity }} {{ crop.unit }}</div>
+      </div>
+      <div class="list-row-right">
+        {% if auction %}₹{{ '{:,.0f}'.format(auction.current_price|float) }} / {{ crop.unit }}{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">No crops listed yet.</div>
+  {% endif %}
+
+  <div style="margin-top:2rem;">
+    <h2 class="section-label">Payment Status</h2>
+    <div class="list-card">
+      {% for t in transactions %}
+      <div class="list-row">
+        <div class="list-row-body">
+          <div class="list-row-title">
+            {{ t.crop_name }} 
+            <span class="badge {% if t.status == 'released' %}badge-eligible{% elif t.status == 'held' %}badge-live{% else %}badge-closed{% endif %}">
+              {% if t.status == 'released' %}Completed{% else %}{{ t.status|title }}{% endif %}
+            </span>
+          </div>
+          <div class="list-row-meta">Lot: {{ t.lot_number }} · Buyer: {{ t.buyer_name }}</div>
+        </div>
+        <div class="list-row-right">
+          <div class="list-row-price">₹{{ '{:,.2f}'.format(t.farmer_payout|float) }}</div>
+          <div class="list-row-date">{{ t.created_at|format_datetime }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state">No payment records found.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div style="margin-top:2rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 class="section-label">Notifications</h2>
+      {% if has_unread %}
+      <form method="post" action="{{ url_for('mark_read') }}">
+        <button type="submit" class="btn btn-outline btn-sm">Mark all as read</button>
+      </form>
+      {% endif %}
+    </div>
+    <div class="list-card">
+      {% for n in notifications %}
+      <div class="list-row {% if not n.is_read %}unread{% endif %}" style="border-left: 3px solid {% if not n.is_read %}var(--green-600){% else %}transparent{% endif %};">
+        <div class="list-row-body">
+          <div class="list-row-title">{{ n.title }}</div>
+          <div class="list-row-meta">{{ n.message }}</div>
+        </div>
+        <div class="list-row-right">
+          <div class="list-row-date">{{ n.created_at[:16].replace('T', ', ') }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state">No notifications.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

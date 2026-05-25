@@ -1,0 +1,25 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Add Money{% endblock %}
+{% block admin_content %}
+<header class="admin-header"><h1>Add Wallet Money</h1></header>
+<div class="admin-content">
+  <div class="form-card">
+    <form method="post">
+      <div class="form-group">
+        <label for="user_id">User</label>
+        <select id="user_id" name="user_id" required>
+          {% for u in users %}
+          <option value="{{ u.id }}">{{ u.full_name }} ({{ u.role }}) — ₹{{ '{:,.0f}'.format(u.wallet_balance|float) }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount (₹)</label>
+        <input type="number" id="amount" name="amount" step="0.01" min="1" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Money</button>
+      <a href="{{ url_for('admin_deposits') }}" class="btn btn-outline" style="margin-left:0.5rem;">Back</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

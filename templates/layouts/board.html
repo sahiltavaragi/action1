@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AgriAuction{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="background: #fafafa; min-height: 100vh;">
+  
+  <nav style="background: #fff; border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;">
+    <a href="{{ url_for('auction_board') }}" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; color: var(--text); font-weight: 700; font-size: 1.1rem;">
+      <span style="font-size: 1.2rem;">🔨</span>
+      AgriAuction
+    </a>
+    
+    <div style="display: flex; gap: 1.5rem; align-items: center;">
+      <a href="{{ url_for('auction_board') }}" style="text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Auction Board</a>
+      <a href="{{ url_for('browse') }}" style="text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Browse</a>
+      
+      {% if session.get('user_id') %}
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="padding: 0.4rem 1rem; background: var(--green-900); font-size: 0.85rem;">Dashboard</a>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Login</a>
+      <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 0.4rem 1rem; background: var(--green-900); font-size: 0.85rem;">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main style="padding: 2rem;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div style="max-width: 1100px; margin: 0 auto 1.5rem auto;">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block body %}{% endblock %}
+  </main>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

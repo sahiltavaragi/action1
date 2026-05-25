@@ -1,0 +1,197 @@
+{% extends "layouts/public.html" %}
+{% from "macros/lot_card.html" import lot_card %}
+{% block title %}{{ auction.crops.name if auction.crops else 'Lot' }}{% endblock %}
+
+{% block body %}
+<div class="page-wrap" style="padding-top:1.25rem; max-width: 800px; margin: 0 auto;">
+  <a href="{{ url_for('auction_board') }}" style="font-size:0.9rem; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 0.25rem; margin-bottom: 1.5rem;">
+    <span>←</span> Back to auctions
+  </a>
+
+  <!-- Main Lot Card -->
+  <div class="form-card" style="margin-bottom: 1.5rem; border-radius: 4px; padding: 1.5rem;">
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <span style="font-size: 0.7rem; color: var(--text-muted); background: #f3f4f6; padding: 0.2rem 0.5rem; border-radius: 2px; text-transform: uppercase;">{{ auction.crops.lot_number }}</span>
+      <span style="font-size: 0.7rem; color: #00a854; background: #e6f7ef; padding: 0.2rem 0.5rem; border-radius: 2px;">{{ auction.crops.quality_grade }}</span>
+      <span style="font-size: 0.7rem; color: #00a854; background: #e6f7ef; padding: 0.2rem 0.5rem; border-radius: 2px;">● Active</span>
+    </div>
+    
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">{{ auction.crops.name }}</h1>
+    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Farmer: {{ auction.crops.farmer_name or '—' }}</p>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1rem 0; margin-bottom: 1.5rem;">
+      <div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Quantity</div>
+        <div style="font-weight: 600; font-size: 0.9rem;">{{ auction.crops.quantity }} {{ auction.crops.unit }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Base Price</div>
+        <div style="font-weight: 600; font-size: 0.9rem;">₹{{ '{:,.0f}'.format(auction.base_price|float) }} / {{ auction.crops.unit }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Location</div>
+        <div style="font-weight: 600; font-size: 0.9rem;">{{ auction.crops.location or '—' }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Pickup</div>
+        <div style="font-weight: 600; font-size: 0.9rem;">Self Pickup</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Bidding Opens</div>
+        <div style="font-size: 0.85rem; font-weight: 500;">{{ auction.starts_at|format_datetime }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Bidding Closes</div>
+        <div style="font-size: 0.85rem; font-weight: 500;">{{ auction.ends_at|format_datetime }}</div>
+      </div>
+    </div>
+
+    {% if is_active %}
+    <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 0.75rem 1rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; color: #92400e; font-size: 0.9rem; font-weight: 600;">
+      <span>🕒</span>
+      <span class="countdown-timer" data-seconds="{{ seconds_left }}">Closes in {{ (seconds_left // 3600) }}h {{ (seconds_left % 3600) // 60 }}m</span>
+    </div>
+    {% else %}
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 4px;">
+      <div style="font-weight: 700; color: #166534; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span>🏆</span> Auction Closed
+      </div>
+      <div style="font-size: 0.85rem; color: #15803d; margin-bottom: 1rem;">
+        {% if auction.winner_name and auction.winner_name != '—' %}
+          Winner: <strong>{{ auction.winner_name }}</strong> — Winning bid: <strong>₹{{ '{:,.0f}'.format(auction.current_price|float) }} / {{ auction.crops.unit }}</strong>
+          <div style="font-size: 0.8rem; margin-top: 0.25rem;">Total Value: ₹{{ '{:,.0f}'.format((auction.current_price|float) * (auction.crops.quantity|float)) }}</div>
+        {% else %}
+          Ended without a winner.
+        {% endif %}
+      </div>
+      
+      {% if auction.winner_name and auction.winner_name != '—' %}
+        {% if session.get('role') == 'buyer' and session.get('user_id') == auction.winner_id %}
+          {% if not has_paid %}
+            <a href="{{ url_for('pay_auction', auction_id=auction.id) }}" class="btn btn-primary" style="background: #f97316; border: none; font-size: 0.85rem; padding: 0.5rem 1rem; font-weight: 700;">Initiate Payment</a>
+          {% else %}
+            <span class="badge badge-eligible" style="background: #e6f7ef; color: #00a854; border: none; font-size: 0.85rem; padding: 0.5rem 1rem; font-weight: 700; display: inline-block;">🔒 Payment Completed (Escrow)</span>
+          {% endif %}
+        {% elif session.get('role') == 'admin' %}
+          <a href="{{ url_for('admin_payments') }}" class="btn btn-primary" style="background: #166534; border: none; font-size: 0.85rem; padding: 0.5rem 1rem;">Manage Payment</a>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Bid History Section -->
+  <div class="form-card" style="margin-bottom: 1.5rem; padding: 0; border-radius: 4px; overflow: hidden;">
+    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 1.25rem; border-bottom: 1px solid var(--border);">BID HISTORY</h3>
+    <div id="bid-history-list">
+      {% for bid in bids %}
+      <div class="list-row" style="padding: 1rem 1.25rem; {% if loop.first %}background: #f0fdf4;{% endif %}">
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+          <span style="font-size: 0.9rem; color: #00a854;">📈</span>
+          <span style="font-weight: 600; font-size: 0.95rem;">{{ bid.users.full_name if bid.users else 'Bidder' }}</span>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-weight: 700; font-size: 1rem;">₹{{ '{:,.0f}'.format(bid.amount|float) }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">{{ bid.created_at|format_datetime }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding: 2rem;">No bids yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Bidding Form Section -->
+  <div class="form-card" style="border-radius: 4px; padding: 1.5rem;">
+    <div style="margin-bottom: 1.5rem;">
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+        {% if is_active %}CURRENT HIGHEST BID{% else %}WINNING BID{% endif %}
+      </div>
+      <div style="font-size: 2rem; font-weight: 700; display: flex; align-items: baseline; gap: 0.25rem;" id="current-bid-{{ auction.id }}">
+        ₹{{ '{:,.0f}'.format(auction.current_price|float) }} <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">/ {{ auction.crops.unit }}</span>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--green-900); font-weight: 600; margin-top: 0.25rem;">
+        Total Value: ₹{{ '{:,.0f}'.format((auction.current_price|float) * (auction.crops.quantity|float)) }} ({{ auction.crops.quantity }} {{ auction.crops.unit }})
+      </div>
+    </div>
+
+    {% if is_active and session.get('role') == 'buyer' %}
+      {% if wallet < deposit_min %}
+      <div class="alert alert-danger" style="margin-bottom:1rem;font-size:0.9rem;padding:0.75rem;">
+        <strong>Bidding Disabled:</strong> You must maintain a minimum Security Deposit of ₹{{ '{:,.0f}'.format(deposit_min) }} to place bids.
+      </div>
+      {% else %}
+      <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.85rem; color: #0369a1;">
+        💰 <strong>Trading Wallet:</strong> ₹{{ '{:,.0f}'.format(trading_wallet or 0) }} available
+        <span style="font-size: 0.75rem; color: #6b7280; margin-left: 0.5rem;">(bids deducted from here)</span>
+      </div>
+      <form method="post" action="{{ url_for('place_bid', auction_id=auction.id) }}">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Your Bid (₹)</label>
+          <input type="number" name="amount" step="1"
+                 placeholder="Any amount above ₹{{ '{:,.0f}'.format(auction.current_price|float) }}"
+                 min="{{ (auction.current_price|float) + 1 }}" required
+                 style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; padding: 0.85rem; background: #2d4a3e; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <span>🔨</span> Place Bid
+        </button>
+      </form>
+      {% endif %}
+    {% elif is_active and not session.get('user_id') %}
+      <p style="text-align: center;"><a href="{{ url_for('register') }}">Register</a> or <a href="{{ url_for('login') }}">Sign In</a> to place a bid.</p>
+    {% endif %}
+  </div>
+
+
+</div>
+
+<script>
+  function pollAuction() {
+    fetch('/api/auction/{{ auction.id }}')
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) return;
+
+        // Update current price
+        const priceEl = document.getElementById('current-bid-{{ auction.id }}');
+        if (priceEl) priceEl.innerHTML = '₹' + data.current_price.toLocaleString() + ' <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">/ {{ auction.crops.unit }}</span>';
+
+        // Update highest bidder
+        const winnerEl = document.getElementById('winner-name-{{ auction.id }}');
+        if (winnerEl) winnerEl.innerText = data.highest_bidder;
+
+        // Update bid history
+        const historyEl = document.getElementById('bid-history-list');
+        if (historyEl && data.bids.length > 0) {
+          let html = '';
+          data.bids.forEach((bid, index) => {
+            html += `
+              <div class="list-row" style="padding: 1rem 1.25rem; ${index === 0 ? 'background: #f0fdf4;' : ''}">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                  <span style="font-size: 0.9rem; color: #00a854;">📈</span>
+                  <span style="font-weight: 600; font-size: 0.95rem;">${bid.bidder}</span>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; font-size: 1rem;">₹${bid.amount.toLocaleString()}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${bid.time}</div>
+                </div>
+              </div>
+            `;
+          });
+          historyEl.innerHTML = html;
+        }
+
+        // Check if auction status changed
+        if (data.status !== 'active') {
+          window.location.reload();
+        }
+      });
+  }
+
+  setInterval(pollAuction, 3000);
+</script>
+{% endblock %}

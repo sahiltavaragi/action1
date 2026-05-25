@@ -1,0 +1,175 @@
+{% extends "layouts/public.html" %}
+{% block title %}My Dashboard{% endblock %}
+
+{% block body %}
+<div class="page-wrap" style="padding-top:1.25rem; max-width: 1000px; margin: 0 auto;">
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">My Dashboard</h1>
+    <p style="font-size: 0.9rem; color: var(--text-muted);">Welcome back, {{ session.full_name }}</p>
+  </div>
+
+  <!-- Stat Cards Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="stat-card" style="background: #fff; padding: 1.25rem; border: 1px solid var(--border); border-radius: 4px;">
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">🔒 SECURITY DEPOSIT</div>
+      <div style="font-size: 1.5rem; font-weight: 700; color: #00a854;">₹{{ '{:,.0f}'.format(wallet) }}</div>
+      <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Min ₹{{ '{:,.0f}'.format(deposit_min) }} required to bid</div>
+    </div>
+    <div class="stat-card" style="background: #fff; padding: 1.25rem; border: 1px solid var(--border); border-radius: 4px;">
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">💰 TRADING WALLET</div>
+      <div style="font-size: 1.5rem; font-weight: 700; color: #0369a1;">₹{{ '{:,.0f}'.format(trading_wallet) }}</div>
+      <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Used for bidding & buying</div>
+    </div>
+    <div class="stat-card" style="background: #fff; padding: 1.25rem; border: 1px solid var(--border); border-radius: 4px;">
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">🔨 TOTAL BIDS</div>
+      <div style="font-size: 1.5rem; font-weight: 700;">{{ total_bids }}</div>
+    </div>
+    <div class="stat-card" style="background: #fff; padding: 1.25rem; border: 1px solid var(--border); border-radius: 4px;">
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">💳 PAYMENTS</div>
+      <div style="font-size: 1.5rem; font-weight: 700;">{{ payment_count }}</div>
+    </div>
+  </div>
+
+  <!-- Dual Wallet Section -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+
+    <!-- Security Deposit Card -->
+    <div class="form-card" style="border-radius: 4px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">🔒 SECURITY DEPOSIT</h3>
+        {% if eligible %}
+        <span class="badge badge-eligible" style="background: #e6f7ef; color: #00a854; border: none; font-size: 0.7rem; padding: 0.2rem 0.5rem;">Active</span>
+        {% else %}
+        <span class="badge badge-danger" style="background: #fee2e2; color: #991b1b; border: none; font-size: 0.7rem; padding: 0.2rem 0.5rem;">Inactive</span>
+        {% endif %}
+      </div>
+      <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">₹{{ '{:,.0f}'.format(wallet) }}</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Status: {% if eligible %}Eligible to Bid{% else %}Deposit ₹{{ '{:,.0f}'.format(deposit_min) }} required{% endif %}
+      </div>
+      <div style="font-size: 0.75rem; color: #6b7280; background: #f9fafb; padding: 0.5rem 0.75rem; border-radius: 4px; margin-bottom: 1rem;">
+        ℹ️ Security deposit is <strong>never deducted</strong> during bidding or buying. It only ensures eligibility.
+      </div>
+      <form action="{{ url_for('add_deposit') }}" method="POST" style="display: flex; gap: 0.5rem;">
+        <input type="number" name="amount" value="10000" style="flex: 1; padding: 0.6rem; border: 1px solid var(--border); border-radius: 4px;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.6rem 1.5rem; background: var(--green-900);">+ Add</button>
+      </form>
+    </div>
+
+    <!-- Trading Wallet Card -->
+    <div class="form-card" style="border-radius: 4px; border-left: 3px solid #0369a1;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">💰 TRADING WALLET</h3>
+        <span class="badge" style="background: #e0f2fe; color: #0369a1; border: none; font-size: 0.7rem; padding: 0.2rem 0.5rem;">For Trading</span>
+      </div>
+      <div style="font-size: 2rem; font-weight: 700; color: #0369a1; margin-bottom: 0.25rem;">₹{{ '{:,.0f}'.format(trading_wallet) }}</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Available for bids &amp; purchases</div>
+      <div style="font-size: 0.75rem; color: #6b7280; background: #f0f9ff; padding: 0.5rem 0.75rem; border-radius: 4px; margin-bottom: 1rem;">
+        💡 Add funds here to place bids and buy crops. Bid amounts are deducted from this wallet.
+      </div>
+      <form action="{{ url_for('add_trading_deposit') }}" method="POST" style="display: flex; gap: 0.5rem;">
+        <input type="number" name="amount" placeholder="Enter amount" style="flex: 1; padding: 0.6rem; border: 1px solid var(--border); border-radius: 4px;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.6rem 1.5rem; background: #0369a1;">+ Add</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="form-card" style="margin-bottom: 2rem; border-radius: 4px;">
+    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem;">QUICK ACTIONS</h3>
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <a href="{{ url_for('browse') }}" style="display: flex; align-items: center; gap: 1rem; text-decoration: none; color: inherit;">
+        <div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📁</div>
+        <div>
+          <div style="font-weight: 600; font-size: 0.95rem;">Browse Auctions</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">{{ total_bids }} active bids</div>
+        </div>
+      </a>
+      <a href="{{ url_for('auction_board') }}" style="display: flex; align-items: center; gap: 1rem; text-decoration: none; color: inherit;">
+        <div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🔨</div>
+        <div>
+          <div style="font-weight: 600; font-size: 0.95rem;">Auction Board</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Live results</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- My Bid History -->
+  <div class="form-card" style="margin-bottom: 2rem; padding: 0; border-radius: 4px; overflow: hidden;">
+    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 1.25rem; border-bottom: 1px solid var(--border);">MY BID HISTORY</h3>
+    <div class="list-card" style="border: none; border-radius: 0;">
+      {% for bid in buyer_bids %}
+      <div class="list-row" style="padding: 1rem 1.25rem;">
+        <div class="list-row-body">
+          <div class="list-row-title" style="font-weight: 600;">{{ bid.auctions.crops.name }}</div>
+          <div class="list-row-meta" style="font-size: 0.8rem;">{{ bid.created_at|format_datetime }}</div>
+        </div>
+        <div class="list-row-right">
+          <div class="list-row-price" style="font-weight: 700;">₹{{ '{:,.0f}'.format(bid.amount|float) }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding: 2rem;">No bids placed yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Won Auctions (Pending Payment) -->
+  {% if pending_payments %}
+  <div class="form-card" style="margin-bottom: 2rem; padding: 0; border-radius: 4px; overflow: hidden; border: 1px solid #fed7aa; border-left: 3px solid #f97316;">
+    <h3 style="font-size: 0.75rem; color: #c2410c; background: #fff7ed; text-transform: uppercase; letter-spacing: 0.05em; padding: 1.25rem; border-bottom: 1px solid #fed7aa; margin: 0;">🏆 WON AUCTIONS (PENDING PAYMENT)</h3>
+    <div class="list-card" style="border: none; border-radius: 0;">
+      {% for a in pending_payments %}
+      {% set crop = a.crops %}
+      <div class="list-row" style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
+        <div class="list-row-body" style="flex: 1;">
+          <div class="list-row-title" style="font-weight: 700; font-size: 1.05rem; color: var(--text-main);">
+            {{ crop.name }} <span class="badge" style="background: #eef2f6; color: #475569; font-size: 0.7rem; font-weight: normal; margin-left: 0.25rem;">Lot #{{ crop.lot_number or '—' }}</span>
+          </div>
+          <div class="list-row-meta" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Qty: {{ crop.quantity }} {{ crop.unit }} · Winning Bid: ₹{{ '{:,.2f}'.format(a.current_price|float) }}/{{ crop.unit }}
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div style="text-align: right;">
+            <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Price</div>
+            <div style="font-size: 1.2rem; font-weight: 800; color: var(--text-main);">₹{{ '{:,.2f}'.format((a.current_price|float) * (crop.quantity|float)) }}</div>
+          </div>
+          <a href="{{ url_for('pay_auction', auction_id=a.id) }}" class="btn btn-primary btn-sm" style="background: #f97316; border-color: #f97316; padding: 0.5rem 1rem; font-weight: 700;">
+            Initiate Payment
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- My Payments -->
+  <div class="form-card" style="margin-bottom: 2rem; padding: 0; border-radius: 4px; overflow: hidden;">
+    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 1.25rem; border-bottom: 1px solid var(--border);">MY PAYMENTS</h3>
+    <div class="list-card" style="border: none; border-radius: 0;">
+      {% for t in transactions %}
+      <div class="list-row" style="padding: 1rem 1.25rem;">
+        <div class="list-row-body">
+          <div class="list-row-title" style="font-weight: 600;">{{ t.crop_name }} <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal;">{{ t.lot_number }}</span></div>
+          <div class="list-row-meta" style="font-size: 0.8rem;">Farmer: {{ t.farmer_name or '—' }}</div>
+        </div>
+        <div class="list-row-right" style="text-align: right;">
+          <div class="list-row-price" style="font-weight: 700;">₹{{ '{:,.0f}'.format(t.bid_amount|float) }}</div>
+          <div style="font-size: 0.7rem; font-weight: 600;
+            {% if t.status == 'released' %}color: #00a854;{% elif t.status == 'held' %}color: #d97706;{% else %}color: #991b1b;{% endif %}">
+            {% if t.status == 'released' %}Completed{% elif t.status == 'refunded' %}Refunded to Trading Wallet{% else %}{{ t.status|title }}{% endif %}
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding: 2rem;">No payments found.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Escrow Payments{% endblock %}
+
+{% block admin_content %}
+<header class="admin-header">
+  <h1>Escrow Payments</h1>
+  <p>Manage payment holds and farmer releases.</p>
+</header>
+<div class="admin-content">
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="label">Total Value</div>
+      <div class="value dark">₹{{ '{:,.0f}'.format(total_value) }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Commission (3%)</div>
+      <div class="value orange">₹{{ '{:,.0f}'.format(total_commission) }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Farmer Payouts</div>
+      <div class="value green">₹{{ '{:,.0f}'.format(total_payout) }}</div>
+    </div>
+  </div>
+
+  <div class="list-card">
+    <div class="list-card-header">💳 All transactions</div>
+    {% for t in transactions %}
+    <div class="list-row" style="flex-wrap:wrap;">
+      <div class="list-row-body">
+        <div class="list-row-title">
+          {{ t.crop_name or 'Crop' }}
+          <span class="badge badge-eligible">{{ t.status|title }}</span>
+        </div>
+        <div class="list-row-meta">
+          <span class="lot-id">{{ t.lot_number }}</span> ·
+          Buyer: {{ t.buyer_name or '—' }} · Farmer: {{ t.farmer_name or '—' }}
+        </div>
+        <div class="list-row-meta" style="margin-top:0.35rem;">
+          Bid: ₹{{ '{:,.0f}'.format(t.bid_amount|float) }} |
+          Commission: ₹{{ '{:,.0f}'.format(t.commission|float) }} |
+          Farmer gets: ₹{{ '{:,.0f}'.format(t.farmer_payout|float) }}
+        </div>
+        <div class="list-row-meta" style="margin-top:0.5rem; background:#f0fdf4; color:#166534; padding:0.4rem 0.6rem; border-radius:4px; display:inline-block; border:1px solid #bbf7d0;">
+          <strong>🏦 Transfer to:</strong>
+          {% if t.farmer_bank_account or t.farmer_ifsc_code or t.farmer_bank_name %}
+            {{ t.farmer_bank_name or 'Bank' }} — A/C: {{ t.farmer_bank_account or 'N/A' }} (IFSC: {{ t.farmer_ifsc_code or 'N/A' }})
+          {% elif t.farmer_upi_id %}
+            UPI: {{ t.farmer_upi_id }}
+          {% else %}
+            No bank details provided.
+          {% endif %}
+        </div>
+        <div class="list-row-meta" style="margin-top:0.5rem;">Ref: {{ t.txn_ref }}</div>
+      </div>
+      <div class="list-row-right">
+        <div class="list-row-date" style="margin-bottom:0.5rem;">{{ t.created_at[:16].replace('T', ', ') if t.created_at else '' }}</div>
+        {% if t.status == 'held' %}
+        <div style="display:flex;gap:0.5rem;">
+          <form method="post" action="{{ url_for('admin_payment_action', tx_id=t.id, action='release') }}">
+            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Release ₹{{ '{:,.0f}'.format(t.farmer_payout|float) }} to farmer?');">Release</button>
+          </form>
+          <form method="post" action="{{ url_for('admin_payment_action', tx_id=t.id, action='refund') }}">
+            <button type="submit" class="btn btn-outline btn-sm" onclick="return confirm('Refund ₹{{ '{:,.0f}'.format(t.bid_amount|float) }} to buyer?');">Refund</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">No transactions yet. Payments appear when auctions close.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

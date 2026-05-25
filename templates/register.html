@@ -1,0 +1,65 @@
+{% extends "layouts/auth.html" %}
+{% block title %}Register{% endblock %}
+{% block body %}
+<div style="padding:0; min-height:100vh; background:var(--green-900); display:flex; align-items:center; justify-content:center;">
+  <div style="width:100%; max-width:420px; padding:2rem; text-align:center;">
+
+    <div style="width:48px; height:48px; background:var(--gold); border-radius:8px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:1.5rem;">
+      🔨
+    </div>
+
+    <h1 style="color:#fff; font-size:1.5rem; font-weight:700; margin-bottom:0.25rem;">Create Buyer Account</h1>
+    <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin-bottom:2rem;">Join AgriAuction and bid on fresh produce</p>
+
+    <div class="form-card" style="margin:0; padding:1.5rem; border-radius:8px; text-align:left;">
+      <form method="post">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="full_name" style="font-size:0.8rem; font-weight:600; margin-bottom:0.4rem;">Full Name</label>
+          <input type="text" id="full_name" name="full_name" placeholder="Ravi Kumar" required
+                 style="width:100%; padding:0.65rem; border:1px solid var(--border); border-radius:4px; font-size:0.9rem;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="email" style="font-size:0.8rem; font-weight:600; margin-bottom:0.4rem;">Email</label>
+          <input type="email" id="email" name="email" placeholder="ravi@example.com" required
+                 style="width:100%; padding:0.65rem; border:1px solid var(--border); border-radius:4px; font-size:0.9rem;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="password" style="font-size:0.8rem; font-weight:600; margin-bottom:0.4rem;">Password</label>
+          <input type="password" id="password" name="password" placeholder="Min. 6 characters" minlength="6" required
+                 style="width:100%; padding:0.65rem; border:1px solid var(--border); border-radius:4px; font-size:0.9rem;">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="phone" style="font-size:0.8rem; font-weight:600; margin-bottom:0.4rem;">Phone</label>
+            <input type="text" id="phone" name="phone" placeholder="9876543210" required
+                   style="width:100%; padding:0.65rem; border:1px solid var(--border); border-radius:4px; font-size:0.9rem;">
+          </div>
+          <div class="form-group">
+            <label for="pincode" style="font-size:0.8rem; font-weight:600; margin-bottom:0.4rem;">Pincode</label>
+            <input type="text" id="pincode" name="pincode" placeholder="400001" required
+                   style="width:100%; padding:0.65rem; border:1px solid var(--border); border-radius:4px; font-size:0.9rem;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label for="city" style="font-size:0.8rem; font-weight:600; margin-bottom:0.4rem;">City</label>
+          <input type="text" id="city" name="city" placeholder="Mumbai" required
+                 style="width:100%; padding:0.65rem; border:1px solid var(--border); border-radius:4px; font-size:0.9rem;">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:0.75rem; background:#2d6a4f; border:none; font-weight:600; margin-bottom:1rem;">
+          Create Account
+        </button>
+
+        <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin:0;">
+          Already have an account? <a href="{{ url_for('login') }}" style="color:#2d6a4f; font-weight:600;">Sign in</a>
+        </p>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

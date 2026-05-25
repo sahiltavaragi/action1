@@ -1,0 +1,54 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Create Farmer{% endblock %}
+{% block admin_content %}
+<header class="admin-header"><h1>Create Farmer</h1><p>Admin sets login ID and password for the farmer.</p></header>
+<div class="admin-content">
+  <div class="form-card" style="max-width:560px;">
+    <form method="post">
+      <div class="form-group">
+        <label for="full_name">Farmer Name *</label>
+        <input type="text" id="full_name" name="full_name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="text" id="phone" name="phone" required placeholder="e.g. 9876543210">
+        </div>
+        <div class="form-group">
+          <label for="email">Email (Optional)</label>
+          <input type="email" id="email" name="email" placeholder="farmer@example.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="location">Address / Location</label>
+        <input type="text" id="location" name="location">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bank_account">Bank Account *</label>
+          <input type="text" id="bank_account" name="bank_account" required placeholder="A/C Number">
+        </div>
+        <div class="form-group">
+          <label for="ifsc_code">IFSC Code *</label>
+          <input type="text" id="ifsc_code" name="ifsc_code" required placeholder="e.g. SBIN0001234">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bank_name">Bank Name *</label>
+          <input type="text" id="bank_name" name="bank_name" required placeholder="e.g. State Bank of India">
+        </div>
+        <div class="form-group">
+          <label for="upi_id">UPI ID</label>
+          <input type="text" id="upi_id" name="upi_id" placeholder="name@upi">
+        </div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">
+        Note: Username and Default Password will both be set to the Phone Number.
+      </p>
+      <button type="submit" class="btn btn-primary">Create Farmer</button>
+      <a href="{{ url_for('admin_farmers') }}" class="btn btn-outline" style="margin-left:0.5rem;">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

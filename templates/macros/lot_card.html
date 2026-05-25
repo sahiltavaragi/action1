@@ -1,0 +1,42 @@
+{% macro lot_card(auction, show_link=true) %}
+{% set crop = auction.crops %}
+{% set grade = crop.grade if crop.grade is defined else (crop.quality_grade or 'Grade B') %}
+{% set grade_class = 'badge-grade-a' if 'A' in grade else ('badge-grade-c' if 'C' in grade else 'badge-grade-b') %}
+<article class="lot-card" onclick="location.href='{{ url_for('auction_detail', auction_id=auction.id) }}'" style="cursor: pointer;">
+  <div class="lot-card-top">
+    <span class="lot-id">📦 {{ crop.lot_number or 'LOT000' }}</span>
+    <div class="lot-badges">
+      <span class="badge {{ grade_class }}">{{ grade }}</span>
+      <span class="badge {% if auction.status == 'active' %}badge-live{% else %}badge-closed{% endif %}">
+        {% if auction.status == 'active' %}● Live{% else %}Closed{% endif %}
+      </span>
+    </div>
+  </div>
+  <div class="lot-name">🌽 {{ crop.name }}</div>
+  <div class="lot-farmer">👨‍🌾 {{ crop.farmer_name or '—' }}</div>
+  
+  {% if auction.status == 'active' and auction.seconds_left is defined %}
+  <div class="lot-timer-row" style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-muted);display:flex;align-items:center;gap:0.35rem;">
+    <span>🕒</span>
+    <span class="countdown-timer" data-seconds="{{ auction.seconds_left }}">{{ (auction.seconds_left // 3600) }}h {{ (auction.seconds_left % 3600) // 60 }}m {{ auction.seconds_left % 60 }}s</span>
+  </div>
+  {% endif %}
+
+  <div class="lot-card-bottom">
+    <div>
+      <div class="lot-bid-label">💰 Current Bid</div>
+      <div class="lot-bid-amount" id="current-bid-{{ auction.id }}">₹{{ '{:,.0f}'.format(auction.current_price|float) }}<span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">/{{ crop.unit }}</span></div>
+      {% if auction.above_base|default(0) > 0 %}
+      <div class="lot-above-base" id="above-base-{{ auction.id }}">↑ +₹{{ '{:,.0f}'.format(auction.above_base|float) }}</div>
+      {% endif %}
+    </div>
+    <div class="lot-winner-block">
+      <div class="lot-winner-label">🏆 Top Bidder</div>
+      <div class="lot-winner-name" id="winner-name-{{ auction.id }}">{{ auction.winner_name or '—' }}</div>
+    </div>
+  </div>
+  {% if show_link %}
+  <a href="{{ url_for('auction_detail', auction_id=auction.id) }}" class="btn btn-outline btn-sm" style="width:100%;margin-top:0.75rem;">View Lot</a>
+  {% endif %}
+</article>
+{% endmacro %}

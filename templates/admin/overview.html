@@ -1,0 +1,70 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Admin Overview{% endblock %}
+
+{% block admin_content %}
+<header class="admin-header">
+  <h1>Admin Overview</h1>
+  <p>Platform analytics and live status.</p>
+</header>
+<div class="admin-content">
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="label">Total Auctions</div>
+      <div class="value green">{{ stats.total_lots }}</div>
+      <div class="sub">{{ stats.live_count }} active</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Revenue</div>
+      <div class="value dark">₹{{ '{:,.0f}'.format(stats.total_revenue) }}</div>
+      <div class="sub">from closed auctions</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Commission Earned</div>
+      <div class="value orange">₹{{ '{:,.0f}'.format(stats.total_commission) }}</div>
+      <div class="sub">3% of transactions</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Registered Buyers</div>
+      <div class="value dark">{{ stats.buyer_count }}</div>
+      <div class="sub">{{ stats.farmer_count }} farmers</div>
+    </div>
+  </div>
+
+  <div class="status-row">
+    <div class="status-card">
+      <div>
+        <div class="value green" style="font-size:1.75rem;font-weight:700;">{{ stats.live_count }}</div>
+        <div class="sub">Live auctions right now</div>
+      </div>
+      <span style="width:10px;height:10px;background:var(--green-500);border-radius:50%;"></span>
+    </div>
+    <div class="status-card">
+      <div>
+        <div class="value dark" style="font-size:1.75rem;font-weight:700;">{{ stats.closed_count }}</div>
+        <div class="sub">Completed auctions</div>
+      </div>
+      <span>🔨</span>
+    </div>
+    <div class="status-card">
+      <div>
+        <div class="value dark" style="font-size:1.75rem;font-weight:700;">{{ stats.total_bids }}</div>
+        <div class="sub">Across all auctions</div>
+      </div>
+      <span>🔨</span>
+    </div>
+  </div>
+
+  <div class="activity-card">
+    <div class="list-card-header">🕐 Recent Activity</div>
+    {% for item in activity %}
+    <div class="activity-item">
+      <span class="activity-dot {% if item.type == 'closed' %}orange{% else %}green{% endif %}"></span>
+      <span class="activity-text">{{ item.text }}</span>
+      <span class="activity-time">{{ item.time[:16].replace('T', ', ') if item.time else '' }}</span>
+    </div>
+    {% else %}
+    <div class="empty-state">No activity yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

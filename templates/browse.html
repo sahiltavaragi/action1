@@ -1,0 +1,20 @@
+{% extends "layouts/public.html" %}
+{% from "macros/lot_card.html" import lot_card %}
+{% block title %}Browse Lots{% endblock %}
+
+{% block body %}
+<div class="page-wrap" style="padding-top:1.5rem; max-width: 1100px; margin: 0 auto;">
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">Browse Auctions</h1>
+    <p style="font-size: 0.9rem; color: var(--text-muted);">{{ auctions|length }} active listings available for bidding</p>
+  </div>
+  
+  <div class="auction-grid">
+    {% for auction in auctions %}
+    {{ lot_card(auction) }}
+    {% else %}
+    <div class="empty-state" style="grid-column: 1 / -1;">No auctions found.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

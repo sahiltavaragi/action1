@@ -1,0 +1,47 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Security Deposits{% endblock %}
+
+{% block admin_content %}
+<header class="admin-header">
+  <h1>Security Deposits</h1>
+  <p>Buyer deposit management.</p>
+</header>
+<div class="admin-content">
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="label">Total Deposits</div>
+      <div class="value dark">₹{{ '{:,.0f}'.format(stats.total_deposits) }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Eligible Bidders</div>
+      <div class="value green">{{ stats.eligible_bidders }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Depositors</div>
+      <div class="value dark">{{ stats.depositor_count }}</div>
+    </div>
+  </div>
+
+  <div class="list-card">
+    <div class="list-card-header">All buyer deposits</div>
+    {% for b in buyers %}
+    {% set eligible = (b.wallet_balance|float) >= deposit_min %}
+    <div class="list-row">
+      <div class="list-row-body">
+        <div class="list-row-title">{{ b.full_name }}</div>
+        <div class="list-row-meta">{{ b.created_at[:16].replace('T', ', ') if b.created_at else '' }} · {{ b.email }}</div>
+      </div>
+      <div class="list-row-right">
+        <div class="list-row-price">₹{{ '{:,.0f}'.format(b.wallet_balance|float) }}</div>
+        <span class="badge {% if eligible %}badge-eligible{% else %}badge-closed{% endif %}">
+          {{ 'Eligible' if eligible else 'Low balance' }}
+        </span>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">No buyers registered.</div>
+    {% endfor %}
+  </div>
+  <p style="margin-top:1rem;"><a href="{{ url_for('admin_add_money') }}" class="btn btn-outline">Add money to buyer wallet</a></p>
+</div>
+{% endblock %}

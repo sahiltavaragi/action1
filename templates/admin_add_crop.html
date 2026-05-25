@@ -1,0 +1,89 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Add Crop Lot{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block admin_content %}
+<header class="admin-header"><h1>Add Crop Lot</h1><p>Select farmer and start auction.</p></header>
+<div class="admin-content">
+  {% if not farmers %}
+  <div class="alert alert-warning">Create a farmer first.</div>
+  <a href="{{ url_for('admin_create_farmer') }}" class="btn btn-primary">Add Farmer</a>
+  {% else %}
+  <div class="form-card" style="max-width:640px;">
+    <form method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="farmer_id">Farmer *</label>
+        <select id="farmer_id" name="farmer_id" required>
+          <option value="">— Select —</option>
+          {% for f in farmers %}
+          <option value="{{ f.id }}">{{ f.full_name }} ({{ f.login_id or f.email }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group"><label for="name">Crop Name *</label><input type="text" id="name" name="name" required></div>
+      <div class="form-group"><label for="description">Description</label><textarea id="description" name="description"></textarea></div>
+      <div class="form-group">
+        <label for="start_price">Base Price (₹) *</label>
+        <input type="number" id="start_price" name="start_price" step="0.01" min="0" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label for="category">Category *</label><input type="text" id="category" name="category" required></div>
+        <div class="form-group">
+          <label for="quality_grade">Grade</label>
+          <select id="quality_grade" name="quality_grade">
+            <option value="A">Grade A</option>
+            <option value="B" selected>Grade B</option>
+            <option value="C">Grade C</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label for="quantity">Quantity *</label><input type="number" id="quantity" name="quantity" step="0.01" min="0.01" required></div>
+        <div class="form-group">
+          <label for="unit">Unit</label>
+          <select id="unit" name="unit"><option value="kg">kg</option><option value="quintal">quintal</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label for="location">Market Location</label><input type="text" id="location" name="location" placeholder="e.g. APMC Market Yard"></div>
+      <hr style="margin:1rem 0;border:none;border-top:1px solid var(--border);">
+      <div class="form-row">
+        <div class="form-group"><label for="starts_at">Auction Start Time *</label><input type="datetime-local" id="starts_at" name="starts_at" required></div>
+        <div class="form-group"><label for="ends_at">Auction End Time *</label><input type="datetime-local" id="ends_at" name="ends_at" required></div>
+      </div>
+      <button type="submit" class="btn btn-primary">Start Auction</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    flatpickr("#starts_at", {
+      enableTime: true,
+      enableSeconds: true,
+      dateFormat: "Y-m-d\\TH:i:S",
+      altInput: true,
+      altFormat: "F j, Y h:i:S K", // Example: May 25, 2026 08:32:00 AM
+      time_24hr: false,
+      defaultDate: now
+    });
+
+    flatpickr("#ends_at", {
+      enableTime: true,
+      enableSeconds: true,
+      dateFormat: "Y-m-d\\TH:i:S",
+      altInput: true,
+      altFormat: "F j, Y h:i:S K",
+      time_24hr: false,
+      defaultDate: tomorrow
+    });
+  });
+</script>
+{% endblock %}

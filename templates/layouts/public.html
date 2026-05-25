@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AgriAuction{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">🌾</div>
+        <span>AgriAuction</span>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">{{ session.get('full_name', 'U')[0].upper() }}</div>
+        <div>
+          <div class="sidebar-user-name">{{ session.get('full_name', 'User') }}</div>
+          <div class="sidebar-user-role">{{ session.get('role', '').title() }}</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        {% if session.get('role') == 'admin' %}
+          <a href="{{ url_for('admin_overview') }}" class="sidebar-link {% if request.endpoint == 'admin_overview' %}active{% endif %}">
+            <span class="sidebar-icon">📊</span> Overview
+          </a>
+          <a href="{{ url_for('admin_farmers') }}" class="sidebar-link {% if request.endpoint in ('admin_farmers','admin_create_farmer') %}active{% endif %}">
+            <span class="sidebar-icon">👨‍🌾</span> Farmers
+          </a>
+          <a href="{{ url_for('admin_crop_lots') }}" class="sidebar-link {% if request.endpoint in ('admin_crop_lots','admin_add_crop') %}active{% endif %}">
+            <span class="sidebar-icon">🌾</span> Crop Lots
+          </a>
+          <a href="{{ url_for('admin_payments') }}" class="sidebar-link {% if request.endpoint == 'admin_payments' %}active{% endif %}">
+            <span class="sidebar-icon">💳</span> Payments
+          </a>
+          <a href="{{ url_for('admin_deposits') }}" class="sidebar-link {% if request.endpoint == 'admin_deposits' %}active{% endif %}">
+            <span class="sidebar-icon">🏦</span> Deposits
+          </a>
+          <a href="{{ url_for('auction_board') }}" class="sidebar-link {% if request.endpoint == 'auction_board' %}active{% endif %}">
+            <span class="sidebar-icon">🔨</span> Auction Board
+          </a>
+        {% elif session.get('role') == 'farmer' %}
+          <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <span class="sidebar-icon">🏠</span> My Dashboard
+          </a>
+          <a href="{{ url_for('browse') }}" class="sidebar-link {% if request.endpoint == 'browse' %}active{% endif %}">
+            <span class="sidebar-icon">🔍</span> Browse Auctions
+          </a>
+        {% elif session.get('role') == 'buyer' %}
+          <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <span class="sidebar-icon">🏠</span> My Dashboard
+          </a>
+          <a href="{{ url_for('browse') }}" class="sidebar-link {% if request.endpoint == 'browse' %}active{% endif %}">
+            <span class="sidebar-icon">🔍</span> Browse Auctions
+          </a>
+          <a href="{{ url_for('auction_board') }}" class="sidebar-link {% if request.endpoint == 'auction_board' %}active{% endif %}">
+            <span class="sidebar-icon">🔨</span> Auction Board
+          </a>
+        {% endif %}
+
+        <div class="sidebar-divider"></div>
+        <a href="{{ url_for('logout') }}" class="sidebar-link sidebar-link-danger">
+          <span class="sidebar-icon">🚪</span> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="app-main">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-wrap">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block body %}{% endblock %}
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    function updateTimers() {
+      document.querySelectorAll(".countdown-timer").forEach(el => {
+        let secs = parseInt(el.getAttribute("data-seconds"), 10);
+        if (isNaN(secs) || secs <= 0) {
+          el.textContent = "Auction Closed";
+          el.classList.add("ending");
+          return;
+        }
+        secs--;
+        el.setAttribute("data-seconds", secs);
+
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        
+        let text = "";
+        if (el.textContent.startsWith("Closes in")) {
+          text = `Closes in ${h}h ${m}m ${s}s`;
+        } else {
+          text = `${h}h ${m}m ${s}s`;
+        }
+        el.textContent = text;
+
+        if (secs < 60) {
+          el.classList.add("ending");
+        } else {
+          el.classList.remove("ending");
+        }
+      });
+    }
+    updateTimers();
+    setInterval(updateTimers, 1000);
+  });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

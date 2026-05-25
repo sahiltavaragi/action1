@@ -1,0 +1,93 @@
+{% extends "layouts/admin.html" %}
+{% block title %}Farmers{% endblock %}
+{% block admin_content %}
+<div class="admin-header">
+  <div class="admin-header-left">
+    <h1>Farmers</h1>
+    <p class="admin-subtitle" style="margin-bottom: 0.25rem;">{{ farmers|length }} registered farmers</p>
+    <p style="font-size: 0.8rem; color: var(--text-muted);">Admin sets login ID and password for the farmer.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="toggleRegForm()">+ Register Farmer</button>
+</div>
+
+<!-- Inline Registration Form -->
+<div id="reg-form" class="form-card" style="display: none; margin-bottom: 2rem;">
+  <h3 style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1.5rem;">New Farmer Registration</h3>
+  <form method="post">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="full_name">Full Name *</label>
+        <input type="text" id="full_name" name="full_name" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone *</label>
+        <input type="text" id="phone" name="phone" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="location">Address *</label>
+      <input type="text" id="location" name="location" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="bank_account">Bank Account *</label>
+        <input type="text" id="bank_account" name="bank_account" required>
+      </div>
+      <div class="form-group">
+        <label for="ifsc_code">IFSC Code *</label>
+        <input type="text" id="ifsc_code" name="ifsc_code" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="bank_name">Bank Name *</label>
+        <input type="text" id="bank_name" name="bank_name" required>
+      </div>
+      <div class="form-group">
+        <label for="upi_id">UPI ID</label>
+        <input type="text" id="upi_id" name="upi_id">
+      </div>
+    </div>
+    
+    <div class="info-alert" style="background: #eef7ff; color: #0066cc; padding: 1rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 1.5rem;">
+      Login credentials will be auto-generated. Share them with the farmer via SMS or WhatsApp after registration.
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <button type="submit" class="btn btn-primary">Register Farmer</button>
+      <button type="button" class="btn btn-outline" onclick="toggleRegForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<!-- Farmers List -->
+<div class="list-card">
+  {% for f in farmers %}
+  <div class="list-row" style="padding: 1rem; align-items: center; cursor: pointer;" onclick="location.href='#'">
+    <div style="font-size: 0.75rem; color: var(--text-muted); min-width: 2.5rem;">#{{ loop.index }}</div>
+    <div class="list-row-body" style="flex: 1;">
+      <div class="list-row-title" style="font-weight: 700; color: var(--text-main); font-size: 1rem;">{{ f.full_name }}</div>
+      <div class="list-row-meta" style="font-size: 0.85rem; color: var(--text-muted);">
+        {{ f.phone }} · {{ f.location or '—' }}
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <span class="badge badge-eligible" style="background: #e6f7ef; color: #00a854; border: none; font-size: 0.75rem; padding: 0.25rem 0.6rem;">Has Login</span>
+      <span style="color: #ccc; font-size: 1.2rem;">›</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">No farmers registered.</div>
+  {% endfor %}
+</div>
+
+<script>
+function toggleRegForm() {
+  const form = document.getElementById('reg-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') {
+    form.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+</script>
+{% endblock %}

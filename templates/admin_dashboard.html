@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="hero" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <div>
+    <h1>Admin Dashboard</h1>
+    <p>Create farmers, list crops, and add wallet money to users.</p>
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <a class="btn btn-gold" href="{{ url_for('admin_create_farmer') }}">+ Farmer</a>
+    <a class="btn btn-primary" href="{{ url_for('admin_add_crop') }}">+ Crop</a>
+    <a class="btn btn-outline" href="{{ url_for('admin_add_money') }}">Add Money</a>
+  </div>
+</section>
+
+<h2 style="color:var(--green-dark);margin:1.5rem 0 0.75rem;">Farmers ({{ farmers|length }})</h2>
+{% if farmers %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Login ID</th>
+      <th>Email</th>
+      <th>Wallet</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for f in farmers %}
+    <tr>
+      <td>{{ f.full_name }}</td>
+      <td><code>{{ f.login_id or '—' }}</code></td>
+      <td>{{ f.email }}</td>
+      <td>₹{{ '%.2f'|format(f.wallet_balance|float) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty-state">No farmers yet. <a href="{{ url_for('admin_create_farmer') }}">Create one</a></p>
+{% endif %}
+
+<h2 style="color:var(--green-dark);margin:1.5rem 0 0.75rem;">Buyers ({{ buyers|length }})</h2>
+{% if buyers %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Wallet</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for b in buyers %}
+    <tr>
+      <td>{{ b.full_name }}</td>
+      <td>{{ b.email }}</td>
+      <td>₹{{ '%.2f'|format(b.wallet_balance|float) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h2 style="color:var(--green-dark);margin:1.5rem 0 0.75rem;">Active Auctions ({{ auctions|length }})</h2>
+{% if auctions %}
+<div class="grid">
+  {% for auction in auctions %}
+  {% set crop = auction.crops %}
+  <article class="card">
+    <div class="card-body">
+      <h3>{{ crop.name if crop else 'Crop' }}</h3>
+      <p>Farmer crop &bull; ₹{{ '%.2f'|format(auction.current_price|float) }} / {{ crop.unit if crop else 'unit' }}</p>
+      <a class="btn btn-primary" href="{{ url_for('auction_detail', auction_id=auction.id) }}">View</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

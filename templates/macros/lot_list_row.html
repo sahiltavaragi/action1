@@ -1,0 +1,48 @@
+{% macro lot_list_row(auction, is_admin=false) %}
+{% set crop = auction.crops %}
+{% set grade = crop.grade if crop.grade is defined else (crop.quality_grade or 'Grade B') %}
+{% set grade_class = 'badge-grade-a' if 'A' in grade else ('badge-grade-c' if 'C' in grade else 'badge-grade-b') %}
+{% set status = auction.status|lower %}
+{% set grade_value = grade|lower|replace(' ', '') %}
+{% set searchable = (crop.name ~ ' ' ~ crop.farmer_name ~ ' ' ~ crop.lot_number)|lower %}
+
+<a class="list-row filter-item" href="{{ url_for('auction_detail', auction_id=auction.id) }}" 
+   data-search="{{ searchable }}"
+   data-status="{{ status }}"
+   data-grade="{{ grade_value }}"
+   style="align-items: center; padding: 1rem 1.25rem;">
+  <!-- Left: Lot ID & Name -->
+  <div style="width: 120px; flex-shrink: 0;">
+    <div style="font-size: 0.7rem; color: var(--text-muted); font-family: monospace; font-weight: 600; margin-bottom: 0.2rem;">{{ crop.lot_number or 'LOT000' }}</div>
+    <div style="font-weight: 700; font-size: 1rem; text-transform: capitalize;">{{ crop.name }}</div>
+  </div>
+
+  <!-- Middle: Details -->
+  <div style="flex: 1; padding: 0 1rem;">
+    <div style="font-size: 0.85rem; font-weight: 500; color: var(--text); margin-bottom: 0.2rem;">{{ crop.farmer_name or '—' }} {% if crop.location %}— {{ crop.location }}{% endif %}</div>
+    <div style="font-size: 0.75rem; color: var(--text-muted);">
+      {{ crop.quantity|int }} {{ crop.unit }} 
+      {% if auction.status == 'active' %}
+        · Ends {{ auction.ends_at|format_datetime if auction.ends_at else '' }}
+      {% else %}
+        · Ended {{ auction.ends_at|format_datetime if auction.ends_at else '' }}
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right: Price & Badges -->
+  <div style="display: flex; align-items: center; gap: 1.5rem; justify-content: flex-end; flex-shrink: 0;">
+    <div style="text-align: right;">
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Current Bid</div>
+      <div style="font-size: 1.15rem; font-weight: 700;">₹{{ '{:,.0f}'.format(auction.current_price|float) }}<span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">/{{ crop.unit }}</span></div>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; align-items: center; width: 140px; justify-content: flex-end;">
+      <span class="badge {{ grade_class }}">{{ grade }}</span>
+      <span class="badge {% if auction.status == 'active' %}badge-live{% else %}badge-closed{% endif %}">
+        {{ auction.status|title }}
+      </span>
+    </div>
+  </div>
+</a>
+{% endmacro %}
