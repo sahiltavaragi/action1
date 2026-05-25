@@ -34,16 +34,44 @@ SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJ...   # Settings → API → service_role
 ```
 
-### 3. Python
+### 3. Running the Project in VS Code (Step-by-Step)
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-pip install -r requirements.txt
-python app.py
-```
+Follow these steps to open and run the project inside **VS Code**:
 
-Open [http://127.0.0.1:5000](http://127.0.0.1:5000).
+1. **Open the Project Folder**:
+   * Open **VS Code**.
+   * Click **File** > **Open Folder...** (or press `Ctrl+K Ctrl+O`).
+   * Choose the project folder: `c:\Users\sahil tavaragi\Desktop\action`.
+
+2. **Open the Integrated Terminal**:
+   * Press `Ctrl` + `\`` (backtick) or go to the top menu and select **Terminal** > **New Terminal**.
+
+3. **Activate the Virtual Environment**:
+   * Run the command in the VS Code terminal depending on your shell type:
+     * **For PowerShell (default)**:
+       ```powershell
+       .venv\Scripts\Activate.ps1
+       ```
+     * **For Command Prompt (cmd)**:
+       ```cmd
+       .venv\Scripts\activate.bat
+       ```
+   * *(Once activated, you will see `(.venv)` displayed at the start of your terminal line).*
+
+4. **Install Dependencies**:
+   * Make sure you have all required Python libraries installed:
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+5. **Start the Web Application**:
+   * Start the Flask development server:
+     ```bash
+     python app.py
+     ```
+
+6. **Access the Application**:
+   * Open your web browser and go to: **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
 
 ## Usage flow
 
