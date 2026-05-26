@@ -650,6 +650,8 @@ def auction_detail(auction_id):
     now = datetime.now(timezone.utc)
     seconds_left = max(0, int((ends - now).total_seconds())) if ends else 0
     is_active = auction.get("status") == "active" and seconds_left > 0
+    wallet = None
+    trading_wallet = None
     has_paid = False
     if session.get("user_id") and session.get("role") == "buyer":
         wallet = db.get_security_deposit_balance(session["user_id"])
